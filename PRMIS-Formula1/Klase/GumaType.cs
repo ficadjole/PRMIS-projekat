@@ -4,12 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garaza
-{
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-        }
-    }
+namespace Klase
+{ 
+    public enum GumaType { M, S, T };
 }

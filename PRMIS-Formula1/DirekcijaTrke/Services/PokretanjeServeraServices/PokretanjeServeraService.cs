@@ -27,39 +27,39 @@ namespace DirekcijaTrke.Services.PokretanjeServeraServices
 
             Socket acceptedSocket = serverSocket.Accept();
 
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            //BinaryFormatter binaryFormatter = new BinaryFormatter();
 
-            byte[] buffer = new byte[1024];
+            //byte[] buffer = new byte[1024];
 
             
 
-            while(true)
-            {
-                int brBajta = acceptedSocket.Receive(buffer);
+            //while(true)
+            //{
+            //    int brBajta = acceptedSocket.Receive(buffer);
 
-                if(brBajta == 0)
-                {
-                    break;
-                }
+            //    if(brBajta == 0)
+            //    {
+            //        break;
+            //    }
 
-                using(MemoryStream ms = new MemoryStream(buffer,0,brBajta))
-                {
-                    Rezultati rezultati = (Rezultati)binaryFormatter.Deserialize(ms);
+            //    using(MemoryStream ms = new MemoryStream(buffer,0,brBajta))
+            //    {
+            //        Rezultati rezultati = (Rezultati)binaryFormatter.Deserialize(ms);
 
-                    podaciOAutu.Add(rezultati.Kljuc,rezultati.Vremena);
+            //        podaciOAutu.Add(rezultati.Kljuc,rezultati.Vremena);
 
-                    Console.WriteLine($"Broj automobila koji je dodat je: {rezultati.Kljuc}");
-                    Console.Write($"Vremena dodatog automobila su: ");
-                    foreach(var vreme in rezultati.Vremena)
-                    {
-                        Console.Write($"{vreme} s ");
-                    }
-                    Console.WriteLine();
-                }
+            //        Console.WriteLine($"Broj automobila koji je dodat je: {rezultati.Kljuc}");
+            //        Console.Write($"Vremena dodatog automobila su: ");
+            //        foreach(var vreme in rezultati.Vremena)
+            //        {
+            //            Console.Write($"{vreme} s ");
+            //        }
+            //        Console.WriteLine();
+            //    }
 
-            }
+            //}
 
-            Console.WriteLine("Server zavrsava sa radom");
+            //Console.WriteLine("Server zavrsava sa radom");
 
             Console.ReadLine();
             acceptedSocket.Close();

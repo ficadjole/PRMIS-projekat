@@ -13,6 +13,7 @@ namespace DirekcijaTrke
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("--------------- Direkcija Trke ---------------");
 
             PokretanjeServeraService pokretanje = new PokretanjeServeraService();
 

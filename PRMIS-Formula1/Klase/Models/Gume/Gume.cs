@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Klase
 {
+    [Serializable]
     public class Gume
     {
 
         public GumaType gumaType { get; set; }
         public int duzinaKoriscenja { get; set; }
-
-        
 
         public Gume() { }
 
@@ -40,7 +39,7 @@ namespace Klase
                 break;
             }
 
-            return s+= $"\tDuzina koriscenja:{duzinaKoriscenja}";
+            return s+= $"\nDuzina koriscenja: {duzinaKoriscenja}";
         }
     }
 }

@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Garaza.Presentation;
+using Klase;
+using Klase.Models.Staze;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,29 +18,59 @@ namespace Garaza
         static void Main(string[] args)
         {
 
-            Socket garazaSoket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Console.WriteLine("--------------- GARAZA ---------------");
 
-            Console.WriteLine($"Podaci TCP uticnice: {garazaSoket.AddressFamily}:{garazaSoket.SocketType}:{garazaSoket.ProtocolType}");
+            Socket garazaTCPSoket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            IPEndPoint garazaEndPoint = new IPEndPoint(IPAddress.Any, 53001);
+            Socket garazaUDPSoket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            garazaSoket.Bind(garazaEndPoint);
+            Console.WriteLine($"Podaci TCP uticnice: {garazaTCPSoket.AddressFamily}:{garazaTCPSoket.SocketType}:{garazaTCPSoket.ProtocolType}");
 
-            garazaSoket.Listen(1000);
+            EndPoint garazaEndPoint = new IPEndPoint(IPAddress.Any, 53001);
 
-            Console.WriteLine($"Pokrenut je server na {garazaEndPoint.Address}:{garazaEndPoint.Port}");
+            EndPoint garazaUDPPoint = new IPEndPoint(IPAddress.Any, 53002);
 
-            Console.Write($"Unesite duzinu staze u kilometrima: ");
-            int duzinaStaze = Int32.Parse(Console.ReadLine());
-            Console.Write($"Unesite osnovno vreme kruga u sekundama: ");
-            int vremeKruga = Int32.Parse(Console.ReadLine());
+            Staza odabranaStaza = new OdabirStaze().odabirStaze();
 
-            Socket acceptedSocket = garazaSoket.Accept();
+            Console.WriteLine(odabranaStaza.ToString());
 
-            Console.ReadKey();
+            Gume odabraneGume = new OdabirGuma().odabraneGume();
 
-            garazaSoket.Close();
-            acceptedSocket.Close();
+            Console.WriteLine(odabraneGume.ToString());
+
+            //garazaTCPSoket.Bind(garazaEndPoint);
+
+            //garazaTCPSoket.Listen(1000);
+
+            //Console.WriteLine($"Pokrenut je server na {garazaEndPoint.Address}:{garazaEndPoint.Port}");
+
+            //Socket acceptedSocket = garazaTCPSoket.Accept();
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            while(true)
+            {
+                byte[] buffer = new byte[1024];
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    binaryFormatter.Serialize(ms, odabraneGume);
+
+                    buffer = ms.ToArray();
+
+                    garazaUDPSoket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, garazaUDPPoint);
+
+                }
+
+                Console.WriteLine("Uspesno ste poslali podatke! Da li zelite jos? da/ne");
+
+                if (Console.ReadLine() != "da")
+                    break;
+            }
+
+            garazaUDPSoket.Close();
+            garazaTCPSoket.Close();
+            //acceptedSocket.Close();
 
             
 

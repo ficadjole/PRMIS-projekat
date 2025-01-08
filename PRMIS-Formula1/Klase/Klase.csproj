@@ -41,11 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutomobiliRepository.cs" />
-    <Compile Include="GumaType.cs" />
-    <Compile Include="Gume.cs" />
-    <Compile Include="GumeRepository.cs" />
-    <Compile Include="KonfiguracijaAutomobila.cs" />
+    <Compile Include="Models\Automobil\Automobil.cs" />
+    <Compile Include="Models\Enums\GumaType.cs" />
+    <Compile Include="Models\Gume\Gume.cs" />
+    <Compile Include="Models\KonfiguracijaAutomobila\KonfiguracijaAutomobila.cs" />
+    <Compile Include="Models\Repositories\AutomobiliRepository.cs" />
+    <Compile Include="Models\Repositories\GumeRepository.cs" />
+    <Compile Include="Models\Staze\Staza.cs" />
     <Compile Include="Rezultati.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

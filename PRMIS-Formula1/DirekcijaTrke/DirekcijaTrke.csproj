@@ -45,8 +45,6 @@
   <ItemGroup>
     <Compile Include="DirekcijaTrke.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domen\Servisi\IPokretanjeServera.cs" />
-    <Compile Include="Services\PokretanjeServeraServices\PokretanjeServeraService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

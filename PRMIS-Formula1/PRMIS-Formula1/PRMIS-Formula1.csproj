@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AutomobilClient.cs" />
     <Compile Include="Presentation\OdabirKonfiguracije.cs" />
+    <Compile Include="Presentation\ParsiranjePorukeGaraze.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

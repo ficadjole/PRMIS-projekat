@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Klase
 {
+    [Serializable]
     public class KonfiguracijaAutomobila
     {
 
-        public string ime {  get; set; }    
-        public double potrosnjaGuma {  get; set; }
+        public string ime { get; set; }
+        public double potrosnjaGuma { get; set; }
         public double potrosnjaGoriva { get; set; }
 
         public KonfiguracijaAutomobila(string ime, double potrosnjaGuma, double potrosnjaGoriva)

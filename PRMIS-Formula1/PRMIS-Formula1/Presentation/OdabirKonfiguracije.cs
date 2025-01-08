@@ -1,10 +1,6 @@
 ﻿using Klase;
 using PRMIS_Formula1.Models.Automobil;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PRMIS_Formula1.Presentation
 {

@@ -1,14 +1,11 @@
-﻿using Klase;
+﻿using PRMIS_Formula1.Models.Automobil;
 using PRMIS_Formula1.Presentation;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PRMIS_Formula1
 {
@@ -18,9 +15,9 @@ namespace PRMIS_Formula1
         {
             Console.WriteLine("--------------- Automobil ---------------");
 
-            var automobil = new OdabirKonfiguracije().odabirKonfiugracijeIGuma();
+            Automobil automobil = new OdabirKonfiguracije().odabirKonfiugracijeIGuma();
 
-            Console.WriteLine(automobil.ToString());    
+            Console.WriteLine(automobil.ToString());
 
             //Uspostavljanje TCP konekcije sa garazaom i otvaranje UDP uticnice
 
@@ -30,50 +27,48 @@ namespace PRMIS_Formula1
 
             Console.WriteLine($"Podaci UDP uticnice: {automobilUDPSocket.AddressFamily}:{automobilUDPSocket.SocketType}:{automobilUDPSocket.ProtocolType}");
 
-            EndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.28"), 53002); //promeniti ip adresu u zavisnoti na kom racunaru se radi
+            EndPoint serverEndPointUDP = new IPEndPoint(IPAddress.Parse("192.168.0.28"), 53002); //promeniti ip adresu u zavisnoti na kom racunaru se radi
 
-            automobilUDPSocket.Bind(serverEndPoint);
+            EndPoint serverEndPointTCP = new IPEndPoint(IPAddress.Parse("192.168.0.28"), 53001);
 
-            //automobilTCPSocket.Connect(serverEndPoint);
-
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            automobilUDPSocket.Bind(serverEndPointUDP);
 
             byte[] buffer = new byte[1024];
 
+            int brBajta = automobilUDPSocket.ReceiveFrom(buffer, ref serverEndPointUDP);
 
+            string poruka = Encoding.UTF8.GetString(buffer, 0, brBajta);
 
-            while (true)
+            Console.WriteLine(poruka);
+
+            new ParsiranjePorukeGaraze().parsiranjePorukeGaraze(poruka, ref automobil);
+
+            Console.WriteLine(automobil.ToString());
+
+            automobilTCPSocket.Connect(serverEndPointTCP);
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            using (MemoryStream ms = new MemoryStream())
             {
-                int brBajta = automobilUDPSocket.ReceiveFrom(buffer, ref serverEndPoint);
-
-                if (brBajta == 0)
-                {
-                    break;
-                }
-
-                using (MemoryStream ms = new MemoryStream(buffer, 0, brBajta))
-                {
-                    Gume gume = (Gume)binaryFormatter.Deserialize(ms);
-
-                    automobil.gumeAutomobila = gume;
-                }
-
-                Console.WriteLine(automobil.ToString());
-
+                binaryFormatter.Serialize(ms, automobil);
+                byte[] bytes = ms.ToArray();
+                automobilTCPSocket.Send(bytes);
             }
 
-            Console.WriteLine("Server zavrsava sa radom");
+            int br = automobilTCPSocket.Receive(buffer);
 
+            automobil.trkackiBroj = Int32.Parse(Encoding.UTF8.GetString(buffer, 0, br));
 
+            Console.WriteLine(automobil);
 
-
-            Console.WriteLine("Klijent zavsrava sa readom pritisnite enter");
+            Console.WriteLine("Klijent zavsrava sa radom pritisnite enter");
             Console.ReadKey();
 
             automobilTCPSocket.Close();
             automobilUDPSocket.Close();
 
-            
+
 
 
 

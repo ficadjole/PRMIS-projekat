@@ -1,5 +1,8 @@
-﻿namespace Klase.Models.Staze
+﻿using System;
+
+namespace Klase.Models.Staze
 {
+    [Serializable]
     public class Staza
     {
 

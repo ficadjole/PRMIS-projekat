@@ -2,8 +2,10 @@
 using Klase;
 using Klase.Models.Staze;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Garaza
@@ -66,6 +68,18 @@ namespace Garaza
             {
                 Console.WriteLine($"Doslo je do greske tokom slanja poruke: \n{ex}");
             }
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, odabranaStaza);
+                byte[] bytes = memoryStream.ToArray();
+                garazaUDPSoket.SendTo(bytes, 0, bytes.Length, SocketFlags.None, garazaUDPPoint);
+
+            }
+
+
 
             Console.WriteLine("Klijent zavrsava sa radom");
             Console.ReadLine();

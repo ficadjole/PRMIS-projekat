@@ -1,11 +1,15 @@
-﻿using PRMIS_Formula1.Models.Automobil;
+﻿using Klase.Models.Staze;
+using PRMIS_Formula1.Models.Automobil;
 using PRMIS_Formula1.Presentation;
+using PRMIS_Formula1.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 
 namespace PRMIS_Formula1
 {
@@ -35,7 +39,7 @@ namespace PRMIS_Formula1
 
             byte[] buffer = new byte[1024];
 
-            int brBajta = automobilUDPSocket.ReceiveFrom(buffer, ref serverEndPointUDP);
+            int brBajta = automobilUDPSocket.ReceiveFrom(buffer, ref serverEndPointUDP); //ovde dobijamo podatke o gorivu i gumama
 
             string poruka = Encoding.UTF8.GetString(buffer, 0, brBajta);
 
@@ -43,11 +47,18 @@ namespace PRMIS_Formula1
 
             new ParsiranjePorukeGaraze().parsiranjePorukeGaraze(poruka, ref automobil);
 
-            Console.WriteLine(automobil.ToString());
-
-            automobilTCPSocket.Connect(serverEndPointTCP);
-
             BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            int brBajtaStaza = automobilUDPSocket.ReceiveFrom(buffer, ref serverEndPointUDP); //ovde ih primamo
+
+            Staza staza = new Staza();
+
+            using (MemoryStream ms = new MemoryStream(buffer, 0, brBajtaStaza))
+            {
+                staza = (Staza)binaryFormatter.Deserialize(ms);
+            }
+
+            automobilTCPSocket.Connect(serverEndPointTCP); //ovde se prikljucujemo na direkcijuTrke
 
             using (MemoryStream ms = new MemoryStream())
             {
@@ -62,7 +73,17 @@ namespace PRMIS_Formula1
 
             Console.WriteLine(automobil);
 
-            Console.WriteLine("Klijent zavsrava sa radom pritisnite enter");
+
+            //simulacija voznje krugova po stazi
+
+            List<double> vremenaPoKrugu = new SimulacijaTrke().simulacija(ref automobil, staza);
+
+            Console.WriteLine();
+
+            Console.WriteLine();
+            Console.WriteLine(automobil);
+
+            Console.WriteLine("\nKlijent zavsrava sa radom pritisnite enter");
             Console.ReadKey();
 
             automobilTCPSocket.Close();

@@ -44,10 +44,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Garaza.cs" />
+    <Compile Include="Presentation\OdabirGuma.cs" />
+    <Compile Include="Presentation\OdabirStaze.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Klase\Klase.csproj">
+      <Project>{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}</Project>
+      <Name>Klase</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

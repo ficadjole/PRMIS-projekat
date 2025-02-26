@@ -9,6 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PRMIS-Formula1", "PRMIS-For
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Garaza", "Garaza\Garaza.csproj", "{E47AA68F-C467-4EC2-9897-4146360EB822}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548} = {6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirekcijaTrke", "DirekcijaTrke\DirekcijaTrke.csproj", "{215AB5B8-E64A-4097-B477-AFC261492C26}"
 	ProjectSection(ProjectDependencies) = postProject

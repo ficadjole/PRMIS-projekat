@@ -35,7 +35,7 @@ namespace Klase
                     break;
             }
 
-            return s += $"\nDuzina koriscenja: {duzinaKoriscenja}";
+            return s += $"\nDuzina koriscenja: {duzinaKoriscenja} km";
         }
     }
 }

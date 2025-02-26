@@ -22,7 +22,7 @@ namespace PRMIS_Formula1.Models.Automobil
 
         public override string ToString()
         {
-            return "\nAutomobil:\n" + konfiguracijaAutomobila.ToString() + gumeAutomobila.ToString() + $"\nKolicina goriva:{kolicinaGoriva} l\n" + $"Trkacki broj: {trkackiBroj} \n";
+            return "Automobil:\n" + konfiguracijaAutomobila.ToString() + gumeAutomobila.ToString() + $"\nKolicina goriva:{kolicinaGoriva} l\n" + $"Trkacki broj: {trkackiBroj} \n";
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E47AA68F-C467-4EC2-9897-4146360EB822}</ProjectGuid>
+    <ProjectGuid>{C6A6B551-B2E5-480A-80DD-E99F1DA17638}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Garaza</RootNamespace>
-    <AssemblyName>Garaza</AssemblyName>
+    <RootNamespace>Pokretanje</RootNamespace>
+    <AssemblyName>Pokretanje</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,20 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Garaza.cs" />
-    <Compile Include="Presentation\OdabirGuma.cs" />
-    <Compile Include="Presentation\OdabirStaze.cs" />
+    <Compile Include="PokretanjeViseKlijenata.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\SlanjeDirektiva.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Klase\Klase.csproj">
-      <Project>{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}</Project>
-      <Name>Klase</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

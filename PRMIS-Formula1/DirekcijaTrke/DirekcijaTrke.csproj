@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="DirekcijaTrke.cs" />
     <Compile Include="PomocneFunkcije\NajbrziKrug.cs" />
+    <Compile Include="PomocneFunkcije\SortiranjeVremena.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

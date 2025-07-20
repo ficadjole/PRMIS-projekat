@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -16,6 +17,7 @@ namespace PRMIS_Formula1
     {
         static void Main(string[] args)
         {
+
             Console.WriteLine("--------------- Automobil ---------------");
 
             //ODABIR KONFIGURACIJE AUTOMOBILA
@@ -30,9 +32,9 @@ namespace PRMIS_Formula1
 
             Socket automobilTCPSocketGaraza = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            EndPoint serverEndPointTCPDirekcija = new IPEndPoint(IPAddress.Parse("192.168.0.34"), 53001);
+            EndPoint serverEndPointTCPDirekcija = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53001);
 
-            EndPoint serverEndPointTCPGaraza = new IPEndPoint(IPAddress.Parse("192.168.0.34"), 53003);
+            EndPoint serverEndPointTCPGaraza = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53003);
 
             //OTVARANJE UDP UTICNICE I SERVERA ZA KOMUNIKACIJU SA GARAZOM
 
@@ -40,9 +42,53 @@ namespace PRMIS_Formula1
 
             Console.WriteLine($"Podaci UDP uticnice: {automobilUDPSocket.AddressFamily}:{automobilUDPSocket.SocketType}:{automobilUDPSocket.ProtocolType}");
 
-            EndPoint serverEndPointUDP = new IPEndPoint(IPAddress.Parse("192.168.0.34"), 53002); //promeniti ip adresu u zavisnoti na kom racunaru se radi
+            IPGlobalProperties iPGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+            IPEndPoint[] udpConnections = iPGlobalProperties.GetActiveUdpListeners();
+
+            bool isPortInUse = false;
+
+            foreach (IPEndPoint udpConnection in udpConnections)
+            {
+
+                if (udpConnection.Port == 53005)
+                {
+                    Console.WriteLine("UDP port 53005 is already in use. Please choose a different port.");
+                    isPortInUse = true;
+                }
+
+            }
+
+            EndPoint serverEndPointUDP;
+            if (isPortInUse)
+            {
+                serverEndPointUDP = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53010); //promeniti ip adresu u zavisnoti na kom racunaru se radi
+            }
+            else
+            {
+                serverEndPointUDP = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53005);
+            }
+
 
             automobilUDPSocket.Bind(serverEndPointUDP);
+
+
+            EndPoint posiljaocEP = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53006); //ovde cemo slati podatke 
+
+            //SLANJE PODATAKA O PRIJAVLJENOM AUTOMOBILU GARAZI
+            BinaryFormatter binaryFormatterPocetak = new BinaryFormatter();
+
+            //slanje podataka o automobilu garazi
+            using (MemoryStream ms = new MemoryStream())
+            {
+
+                binaryFormatterPocetak.Serialize(ms, serverEndPointUDP);
+                byte[] bytes = ms.ToArray();
+                automobilUDPSocket.SendTo(bytes, 0, bytes.Length, SocketFlags.None, posiljaocEP);
+
+            }
+
+            Console.WriteLine("Poruka je poslata");
 
             //PRIMANJE PODATAKA O GORIVU I GUMAMA OD GARAZE
 
@@ -73,30 +119,58 @@ namespace PRMIS_Formula1
 
             automobilTCPSocketDirekcija.Connect(serverEndPointTCPDirekcija); //ovde se prikljucujemo na direkcijuTrke
 
+            automobilTCPSocketDirekcija.Blocking = false;
+
             //SLANJE DIREKCIJI TRKE PODATKE O AUTOMOBILU
 
-            using (MemoryStream ms = new MemoryStream())
+            while (true)
             {
-                binaryFormatter.Serialize(ms, automobil);
-                byte[] bytes = ms.ToArray();
-                automobilTCPSocketDirekcija.Send(bytes);
+                List<Socket> writeSockets = new List<Socket> { automobilTCPSocketDirekcija };
+
+                Socket.Select(null, writeSockets, null, 1000); // cekamo da li je socket spreman za slanje podataka  
+
+                if (writeSockets.Count > 0)
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        binaryFormatter.Serialize(ms, automobil);
+                        byte[] bytes = ms.ToArray();
+                        automobilTCPSocketDirekcija.Send(bytes);
+                        writeSockets.Clear(); //ocistimo listu nakon slanja podataka
+                    }
+                }
+
+                List<Socket> readSockets = new List<Socket> { automobilTCPSocketDirekcija };
+
+                Socket.Select(readSockets, null, null, 1000); // cekamo da li je socket spreman za primanje podataka    
+
+                if (readSockets.Count > 0)
+                {
+                    //PRIMANJE TRKACKOG BROJA OD DIREKCIJE TRKE
+
+                    int br = automobilTCPSocketDirekcija.Receive(buffer);
+
+                    automobil.trkackiBroj = Int32.Parse(Encoding.UTF8.GetString(buffer, 0, br));
+
+                    Console.WriteLine(automobil);
+                }
+
+                if (automobil.trkackiBroj != 0)
+                {
+                    break; //izlazimo iz petlje kada dobijemo trkacki broj
+                }
+
+
+
+
             }
-
-            //PRIMANJE TRKACKOG BROJA OD DIREKCIJE TRKE
-
-            int br = automobilTCPSocketDirekcija.Receive(buffer);
-
-            automobil.trkackiBroj = Int32.Parse(Encoding.UTF8.GetString(buffer, 0, br));
-
-            Console.WriteLine(automobil);
-
 
             //SIMULACIJA VOZNJE TRKE I KONEKTOVANJE NA TCP SERVER GARAZE
 
             automobilTCPSocketGaraza.Connect(serverEndPointTCPGaraza);
 
 
-            List<double> vremenaPoKrugu = new SimulacijaTrke().simulacija(ref automobil, staza, automobilTCPSocketGaraza, automobilUDPSocket, automobilTCPSocketDirekcija , ref serverEndPointUDP);
+            List<double> vremenaPoKrugu = new SimulacijaTrke().simulacija(ref automobil, staza, automobilTCPSocketGaraza, automobilUDPSocket, automobilTCPSocketDirekcija, ref posiljaocEP);
 
             Console.WriteLine();
 

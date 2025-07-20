@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirekcijaTrke", "DirekcijaT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klase", "Klase\Klase.csproj", "{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokretanje", "Pokretanje\Pokretanje.csproj", "{C6A6B551-B2E5-480A-80DD-E99F1DA17638}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DEF8FDB-AD4A-41B2-B98D-CF83A806A548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6A6B551-B2E5-480A-80DD-E99F1DA17638}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6A6B551-B2E5-480A-80DD-E99F1DA17638}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6A6B551-B2E5-480A-80DD-E99F1DA17638}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6A6B551-B2E5-480A-80DD-E99F1DA17638}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

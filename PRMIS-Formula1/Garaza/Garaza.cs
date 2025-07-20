@@ -1,12 +1,15 @@
 ﻿using Garaza.Presentation;
+using Garaza.Services;
 using Klase;
 using Klase.Models.Staze;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 
 namespace Garaza
 {
@@ -24,22 +27,60 @@ namespace Garaza
 
             Console.WriteLine($"Podaci TCP uticnice: {garazaTCPSoket.AddressFamily}:{garazaTCPSoket.SocketType}:{garazaTCPSoket.ProtocolType}");
 
-            EndPoint garazaTCPPoint = new IPEndPoint(IPAddress.Any, 53003);
+
+            EndPoint garazaTCPPoint = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53003);
 
             garazaTCPSoket.Bind(garazaTCPPoint);
 
             garazaTCPSoket.Listen(20);
 
-
             //KREIRANJE UDP UTICNICE - preko nje garaza salje podatke automobilu
 
             Socket garazaUDPSoket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            
-            EndPoint garazaUDPPoint = new IPEndPoint(IPAddress.Parse("192.168.0.34"), 53002);
 
-            Staza odabranaStaza = new OdabirStaze().odabirStaze();
+            EndPoint garazaUDPPoint = new IPEndPoint(IPAddress.Parse("192.168.0.32"), 53005);
+
+            //OVO OVDE JE DEO ZA VISE KORISNIKA DA SE ZNA KOME SALJE PODATKE
+            EndPoint posiljaocEP = new IPEndPoint(IPAddress.Any, 53006);
+
+            garazaUDPSoket.Bind(posiljaocEP);
+
+            int n = 0, brB = 0;
+            byte[] bytes1 = new byte[1024];
+            BinaryFormatter binaryFormatter1 = new BinaryFormatter();
+            EndPoint automobilovEndPoint = null;
+            List<EndPoint> automobilEndPoints = new List<EndPoint>();
+            do
+            {
+
+                if (garazaUDPSoket.Poll(1000 * 1000, SelectMode.SelectRead))
+                {
+
+                    brB = garazaUDPSoket.ReceiveFrom(bytes1, ref posiljaocEP); //slanje poruke da se otvori UDP uticnica
+
+                    if (brB > 0)
+                    {
+
+                        using (MemoryStream ms = new MemoryStream(bytes1, 0, brB))
+                        {
+                            automobilovEndPoint = (EndPoint)binaryFormatter1.Deserialize(ms);
+                            automobilEndPoints.Add(automobilovEndPoint);
+                        }
+
+                        Console.WriteLine($"PRIJAVLJEN AUTO:{automobilovEndPoint.ToString()}");
+                    }
+
+                }
+
+
+                n++;
+            } while (n != 20);
+
+
 
             //ODABIR STAZE, GUMA i GORIVA
+
+            Staza odabranaStaza = new OdabirStaze().odabirStaze();
 
             Console.WriteLine(odabranaStaza.ToString());
 
@@ -73,11 +114,15 @@ namespace Garaza
             //SLANJE PORUKE AUTOMOBILU O GUMAMA I GORIVU
 
             byte[] binarnaPoruka = Encoding.UTF8.GetBytes(poruka);
+            Socket nekiSoket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             try
             {
 
-                int brBajta = garazaUDPSoket.SendTo(binarnaPoruka, 0, binarnaPoruka.Length, SocketFlags.None, garazaUDPPoint);
+                foreach (EndPoint EP in automobilEndPoints)
+                {
+                    garazaUDPSoket.SendTo(binarnaPoruka, 0, binarnaPoruka.Length, SocketFlags.None, EP);
+                }
 
             }
             catch (SocketException ex)
@@ -93,56 +138,93 @@ namespace Garaza
             {
                 binaryFormatter.Serialize(memoryStream, odabranaStaza);
                 byte[] bytes = memoryStream.ToArray();
-                garazaUDPSoket.SendTo(bytes, 0, bytes.Length, SocketFlags.None, garazaUDPPoint);
+                foreach (EndPoint EP in automobilEndPoints)
+                {
+                    garazaUDPSoket.SendTo(bytes, 0, bytes.Length, SocketFlags.None, EP);
+                }
 
             }
 
-            Socket automobilSocket = garazaTCPSoket.Accept();
-
-            //SLANJE PORUKE O PREKIDU TRKE
-
-            byte[] porukaPrekida = new byte[1024];
-
-            Console.WriteLine("Da li zelite da se automobil vrati u garazu? (da/ne)");
-
-            string odgovor = Console.ReadLine();
-
-            if (odgovor == "da")
+            foreach (EndPoint EP in automobilEndPoints)
             {
-                byte[] odgovorByte = Encoding.UTF8.GetBytes(odgovor);
+                automobilovEndPoint = EP; //postavljamo automobilovEndPoint na poslednji primljeni EndPoint
 
-                int brbajta = garazaUDPSoket.SendTo(odgovorByte, 0, odgovorByte.Length, SocketFlags.None, garazaUDPPoint);
+                Console.WriteLine($"\n-------------------Prikacio se automobil {automobilovEndPoint.ToString()}-------------------");
 
-            }
-            else
-            {
 
-                byte[] odgovorByte = Encoding.UTF8.GetBytes(odgovor);
+                Socket automobilSocket = garazaTCPSoket.Accept();
 
-                int brbajta = garazaUDPSoket.SendTo(odgovorByte, 0, odgovorByte.Length, SocketFlags.None, garazaUDPPoint);
 
-                Console.WriteLine("Automobil ce ostati na traci");
-            }
+                //SLANJE PORUKE O PREKIDU TRKE
 
-            int prijemPoruka = automobilSocket.Receive(porukaPrekida);
+                automobilSocket.Blocking = false; //postavljanje neblokirajuceg moda za socket
 
-            if (porukaPrekida.Length > 0)
-            {
+                bool prekid = false;
 
-                string porukaGaraza = Encoding.UTF8.GetString(porukaPrekida);
+                Thread slanjeDirektive = new Thread(() =>
+                {
 
-                Console.WriteLine("\n"+porukaGaraza+"\n");
+                    new SlanjeDirektiva().slanjeDirektiva(garazaUDPSoket, ref automobilovEndPoint, ref prekid);
 
+                });
+
+                slanjeDirektive.IsBackground = true;
+
+                slanjeDirektive.Start();
+
+                //PRIMANJE PORUKE OD AUTOMOBILA O PREKIDU TRKE ILI O GUMAMA I GORIVU
+
+                byte[] porukaPrekida = new byte[1024];
+
+                int brKrugova = 0;
+
+                while (brKrugova != 11)
+                {
+
+                    List<Socket> readSockets = new List<Socket> { automobilSocket };
+
+                    Socket.Select(readSockets, null, null, 1000); //čekanje na podatke sa socket-a sa timeout-om od 1 sekunde
+
+                    if (readSockets.Count > 0)
+                    {
+                        int prijemPoruka = automobilSocket.Receive(porukaPrekida);
+
+                        if (prekid == true)
+                        {
+                            slanjeDirektive.Abort(); //prekidamo slanje direktiva ako je primljena poruka o prekidu trke
+                            break;
+                        }
+
+                        if (prijemPoruka > 0)
+                        {
+                            string porukaGaraza = Encoding.UTF8.GetString(porukaPrekida);
+
+                            if (porukaGaraza == "\n>>AUTOMOBIL: vrednosti guma ili goriva manje od bezbednih povratak u garazu!!\n" || porukaGaraza == "\n>>AUTOMOBIL: vracam se u garazu!!\n")
+                            {
+                                Console.WriteLine(porukaGaraza);
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine(porukaGaraza);
+                            }
+                        }
+
+
+                        brKrugova++;
+                    }
+
+                }
+                automobilSocket.Close();
             }
 
             Console.WriteLine("Klijent zavrsava sa radom");
             Console.ReadLine();
             garazaUDPSoket.Close();
             garazaTCPSoket.Close();
-            //acceptedSocket.Close();
-
-
 
         }
+
     }
 }
+

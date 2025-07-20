@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace DirekcijaTrke.PomocneFunkcije
 {
     public class NajbrziKrug
     {
 
-        public double ProveraNajbrzegKruga(List<double> vremenaPoKrugu) {
+        public double ProveraNajbrzegKruga(List<double> vremenaPoKrugu)
+        {
 
             double najboljeVreme = vremenaPoKrugu[0];
 
-            for (int i = 1; i < vremenaPoKrugu.Count;i++)
+            for (int i = 1; i < vremenaPoKrugu.Count; i++)
             {
                 if (najboljeVreme > vremenaPoKrugu[i])
                 {

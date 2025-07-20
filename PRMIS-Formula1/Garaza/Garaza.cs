@@ -191,7 +191,7 @@ namespace Garaza
 
                         if (prekid == true)
                         {
-                            slanjeDirektive.Abort(); //prekidamo slanje direktiva ako je primljena poruka o prekidu trke
+                            slanjeDirektive.Abort(); //prekidamo trenutnu nit nakon slanja poruke da se automobil vrati u garazu
                             break;
                         }
 

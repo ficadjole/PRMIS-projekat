@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace Garaza.Services
 {
@@ -55,6 +56,7 @@ namespace Garaza.Services
                         int brbajta = garazaUDPSoket.SendTo(odgovorByte, 0, odgovorByte.Length, SocketFlags.None, garazaUDPPoint);
 
                         prekid = true;
+                        
                         break;
 
                     default:

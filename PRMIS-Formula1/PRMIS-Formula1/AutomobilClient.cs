@@ -160,9 +160,6 @@ namespace PRMIS_Formula1
                     break; //izlazimo iz petlje kada dobijemo trkacki broj
                 }
 
-
-
-
             }
 
             //SIMULACIJA VOZNJE TRKE I KONEKTOVANJE NA TCP SERVER GARAZE

@@ -4,6 +4,7 @@ using PRMIS_Formula1.Models.Automobil;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -199,13 +200,22 @@ namespace DirekcijaTrke
                                 if (v)
                                 {   //Ispisivanje rezultata trke
                                     Console.WriteLine("\n>>REZULTATI TRKE<<\n");
-                                    foreach (KeyValuePair<string, List<double>> kvp in podaciOAutima)
-                                    {
-                                        Console.Write($"Automobil: {kvp.Key} - Vreme za najbrzi krug: ");
-                                        Console.WriteLine(Math.Round(kvp.Value[kvp.Value.Count - 1], 2));
-                                        Console.WriteLine();
 
+                                    double minVreme = 100;
+                                    string najbrziAutomobil = "";
+
+                                    foreach (var kvp in podaciOAutima)
+                                    {
+                                        if(minVreme > kvp.Value.Min())
+                                        {
+                                            najbrziAutomobil = $"Automobil: {kvp.Key} - Vreme za najbrzi krug: {Math.Round(kvp.Value.Min(), 2)}\n" + najbrziAutomobil;
+                                        }
+                                        else
+                                        {
+                                            najbrziAutomobil += $"Automobil: {kvp.Key} - Vreme za najbrzi krug: {Math.Round(kvp.Value.Min(), 2)}\n";
+                                        }
                                     }
+                                    Console.WriteLine(najbrziAutomobil);
                                 }
                                 else
                                 {

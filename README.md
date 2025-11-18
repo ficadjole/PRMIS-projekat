@@ -89,7 +89,7 @@ Formula: fuelTempo = 1 / currentFuel
 
 ---
 
-## Recommended Technologies
+## Used Technologies
 - C# 
 - TCP and UDP socket programming  
 - Multithreading 
